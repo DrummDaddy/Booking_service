@@ -123,7 +123,7 @@ func (bs *BookingService) reserveTickets(ctx context.Context, event *models.Even
 			return nil, fmt.Errorf("invalid ticlet ID format: %s", selection.TicketID)
 		}
 
-		var ticketType *models.BookingTicket
+		var ticketType *models.TicketType
 		for i, tt := range event.TicketTypes {
 			if tt.ID == ticketTypeID {
 				ticketType = &event.TicketTypes[i]
@@ -131,7 +131,7 @@ func (bs *BookingService) reserveTickets(ctx context.Context, event *models.Even
 			}
 		}
 		if ticketType == nil {
-			return nil, fmt.Errorf("ticket type %s not found", selection.TicketTypeID)
+			return nil, fmt.Errorf("ticket type %s not found", selection.TicketID)
 		}
 
 		avalible := ticketType.Quantity - ticketType.SoldCount

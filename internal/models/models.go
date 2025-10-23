@@ -71,9 +71,10 @@ type BookingResponse struct {
 }
 
 type Event struct {
-	ID   primitive.ObjectID `json:"id" bson:"_id"`
-	Name string             `json:"name" bson:"name"`
-	Date time.Time          `json:"date" bson:"date"`
+	ID          primitive.ObjectID `json:"id" bson:"_id"`
+	Name        string             `json:"name" bson:"name"`
+	Date        time.Time          `json:"date" bson:"date"`
+	TicketTypes []TicketType       `json:"tycket_type" bson:"tycket_type"`
 }
 
 type TicketType struct {
