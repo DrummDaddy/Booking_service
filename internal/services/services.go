@@ -7,12 +7,13 @@ import (
 	"time"
 
 	"github.com/DrummDaddy/Booking_service/internal/models"
+	"github.com/DrummDaddy/Booking_service/internal/repositories"
 
 	"go.mongodb.org/mongo-driver/bson/primitive"
 )
 
 type BookingService struct {
-	bookingRepo    *BookingRepository
+	bookingRepo    *repositories.BookingRepository
 	eventRepo      *EventRepository
 	ticketRepo     *TicketRepository
 	paymentService *PaymentService
