@@ -14,17 +14,17 @@ import (
 
 type BookingService struct {
 	bookingRepo    *repositories.BookingRepository
-	eventRepo      *EventRepository
-	ticketRepo     *TicketRepository
+	eventRepo      *repositories.EventRepository
+	ticketRepo     *repositories.TicketRepository
 	paymentService *PaymentService
 	cache          *RedisCache
 	reservationTTL time.Duration
 }
 
 func NewBookingService(
-	bookingRepo *BookingRepository,
-	eventRepo *EventRepository,
-	ticketRepo *TicketRepository,
+	bookingRepo *repositories.BookingRepository,
+	eventRepo *repositories.EventRepository,
+	ticketRepo *repositories.TicketRepository,
 	paymentService *PaymentService,
 ) *BookingService {
 	return &BookingService{
