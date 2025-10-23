@@ -1,8 +1,9 @@
 package models
 
 import (
-	"go.mongodb.org/mongo-driver/bson/primitive"
 	"time"
+
+	"go.mongodb.org/mongo-driver/bson/primitive"
 )
 
 type BookingStatus string
@@ -17,7 +18,7 @@ const (
 
 type Booking struct {
 	ID      primitive.ObjectID `json:"id" bson:"_id,omitempty"`
-	USerID  primitive.ObjectID `json:"user_id" bson:"user_id"`
+	UserID  primitive.ObjectID `json:"user_id" bson:"user_id"`
 	EventID primitive.ObjectID `json:"event_id" bson:"event_id"`
 	Status  BookingStatus      `json:"status" bson:"status"`
 	Tickets []BookingTicket    `json:"tickets" bson:"tickets"`
@@ -67,4 +68,18 @@ type BookingResponse struct {
 	ReservedUntil time.Time       `json:"reserved_until"`
 	TotalAmount   float64         `json:"total_amount"`
 	Tickets       []BookingTicket `json:"tickets"`
+}
+
+type Event struct {
+	ID   primitive.ObjectID `json:"id" bson:"_id"`
+	Name string             `json:"name" bson:"name"`
+	Date time.Time          `json:"date" bson:"date"`
+}
+
+type TicketType struct {
+	ID        primitive.ObjectID `json:"id" bson:"_id"`
+	Name      string             `json:"name" bson:"name"`
+	Quantity  int                `json:"quantity" bson:"quantity"`
+	SoldCount int                `json:"sold_count" bson:"sold_count"`
+	Price     float64            `json:"price" bson:"price"`
 }

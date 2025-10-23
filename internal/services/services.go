@@ -39,19 +39,26 @@ func (bs *BookingService) CreatingBooking(ctx context.Context, req *models.Booki
 		return nil, err
 	}
 
-	eventObjID, _ := primitive.ObjectIDFromHex(req.EventID)
+	eventObjID, err := primitive.ObjectIDFromHex(req.EventID)
+	if err != nil {
+		return nil, errors.New("invalid event ID format")
+	}
+	userObjID, err := primitive.ObjectIDFromHex(req.UserID)
+	if err != nil {
+		return nil, errors.New("invalid user ID format")
+	}
 	event, err := bs.eventRepo.FindByID(ctx, eventObjID)
 	if err != nil {
 		return nil, errors.New("event not found")
 	}
-	reservedTickets, err := bs.reservedTickets(ctx, event, req.Tickets)
+	reservedTickets, err := bs.reserveTickets(ctx, event, req.Tickets)
 	if err != nil {
 		return nil, err
 	}
 
 	booking := &models.Booking{
 		ID:            primitive.NewObjectID(),
-		USerID:        primitive.ObjectIDFromHex(req.UserID),
+		UserID:        userObjID,
 		EventID:       eventObjID,
 		Status:        models.BookingStatusReserved,
 		Tickets:       reservedTickets,
@@ -67,7 +74,7 @@ func (bs *BookingService) CreatingBooking(ctx context.Context, req *models.Booki
 	booking.TotalAmount = booking.Subtotal + booking.ServiceFree
 
 	if err := bs.bookingRepo.Create(ctx, booking); err != nil {
-		bs.relaseTickets(ctx, eventObjID, reservedTickets)
+		bs.releaseTickets(ctx, eventObjID, reservedTickets)
 		return nil, err
 	}
 
@@ -111,16 +118,20 @@ func (bs *BookingService) reserveTickets(ctx context.Context, event *models.Even
 	var bookingTickets []models.BookingTicket
 
 	for _, selection := range ticketSelections {
-		ticketTypeID, _ := primitive.ObjectIDFromHex(selection.TicketTypeID)
-		var ticketType *models.TicketType
-		for i, tt := range event.TcketTypes {
+		ticketTypeID, err := primitive.ObjectIDFromHex(selection.TicketID)
+		if err != nil {
+			return nil, fmt.Errorf("invalid ticlet ID format: %s", selection.TicketID)
+		}
+
+		var ticketType *models.BookingTicket
+		for i, tt := range event.TicketTypes {
 			if tt.ID == ticketTypeID {
 				ticketType = &event.TicketTypes[i]
 				break
 			}
 		}
 		if ticketType == nil {
-			return nil, fmt.Errorf("ticket typr %s not found", selection.TicketTypeID)
+			return nil, fmt.Errorf("ticket type %s not found", selection.TicketTypeID)
 		}
 
 		avalible := ticketType.Quantity - ticketType.SoldCount
