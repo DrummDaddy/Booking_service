@@ -241,3 +241,54 @@ func (bs *BookingService) CancelBooking(ctx context.Context, bookingID string, r
 
 	return nil
 }
+
+func (bs *BookingService) CreatePayment(ctx context.Context, bookingID string, returnURL string) (string, error) {
+	bookingObjID, _ := primitive.ObjectIDFromHex(bookingID)
+
+	booking, err := bs.bookingRepo.FindByID(ctx, bookingObjID)
+	if err != nil {
+		return "", err
+	}
+
+	if booking.Status != models.BookingStatusReserved {
+		return "", errors.New("only reserved bookings can be paid")
+
+	}
+
+	paymentURL, err := bs.paymentService.CreatePayment(
+		booking.ID.Hex(),
+		booking.TotalAmount,
+		booking.Currency,
+		"Оплата бронирования",
+		returnURL,
+	)
+
+	if err != nil {
+		return "", err
+	}
+
+	return paymentURL, nil
+}
+
+func (bs *BookingService) ConfirmPayment(ctx context.Context, paymentID string) error {
+	status, err := bs.paymentService.GetPaymentStatus(paymentID)
+	if err != nil {
+		return err
+	}
+
+	if status != "succeeded" {
+		return errors.New("payment not completed")
+	}
+
+	booking, err := bs.bookingRepo.FindByPaymentID(ctx, paymentID)
+	if err != nil {
+		return err
+	}
+
+	if booking.Status != models.BookingStatusReserved {
+		return errors.New("only reserved bookings can be confirmed")
+
+	}
+
+	return bs.ConfirmBooking(ctx, booking.ID.Hex(), paymentID)
+}

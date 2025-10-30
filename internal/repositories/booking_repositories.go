@@ -2,6 +2,7 @@ package repositories
 
 import (
 	"context"
+	"errors"
 	"time"
 
 	"github.com/DrummDaddy/Booking_service/internal/models"
@@ -76,4 +77,19 @@ func (br *BookingRepository) FindExpiredReservation(ctx context.Context) ([]mode
 		return nil, err
 	}
 	return bookings, nil
+}
+
+func (br *BookingRepository) FindByPaymentID(ctx context.Context, paymentID string) (*models.Booking, error) {
+	var booking models.Booking
+
+	err := br.collection.FindOne(ctx, bson.M{"payment_id": paymentID}).Decode(&booking)
+	if err != nil {
+		if err == mongo.ErrNoDocuments {
+			return nil, errors.New("booking with the given payment ID not found")
+
+		}
+		return nil, err
+	}
+
+	return &booking, nil
 }
