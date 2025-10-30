@@ -23,6 +23,7 @@ type Booking struct {
 	Status  BookingStatus      `json:"status" bson:"status"`
 	Tickets []BookingTicket    `json:"tickets" bson:"tickets"`
 
+	PaymentID   string  `json:"payment_id" bson:"payment_id"`
 	Subtotal    float64 `json:"subtotal" bson:"subtotal"`
 	ServiceFree float64 `json:"service_free" bson:"service_free"`
 	TotalAmount float64 `json:"total_amount" bson:"total_amount"`
@@ -74,7 +75,7 @@ type Event struct {
 	ID          primitive.ObjectID `json:"id" bson:"_id"`
 	Name        string             `json:"name" bson:"name"`
 	Date        time.Time          `json:"date" bson:"date"`
-	TicketTypes []TicketType       `json:"tycket_type" bson:"tycket_type"`
+	TicketTypes []TicketType       `json:"ticket_type" bson:"ticket_type"`
 }
 
 type TicketType struct {

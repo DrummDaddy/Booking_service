@@ -2,8 +2,10 @@ package services
 
 import (
 	"context"
+	"encoding/json"
 	"errors"
 	"fmt"
+	"net/http"
 	"time"
 
 	"github.com/DrummDaddy/Booking_service/internal/models"
@@ -291,4 +293,23 @@ func (bs *BookingService) ConfirmPayment(ctx context.Context, paymentID string) 
 	}
 
 	return bs.ConfirmBooking(ctx, booking.ID.Hex(), paymentID)
+}
+
+func (bs *BookingService) HandlerWebhook(w http.ResponseWriter, r *http.Request) {
+	var payload struct {
+		Object struct {
+			ID     string `json:"id"`
+			Status string `json:"status"`
+		} `json:"object"`
+	}
+	if err := json.NewDecoder(r.Body).Decode(&payload); err != nil {
+		http.Error(w, "invalid payload", http.StatusBadRequest)
+		return
+	}
+
+	if payload.Object.Status == "succeeded" {
+		_ = bs.ConfirmPayment(context.Background(), payload.Object.ID)
+	}
+	w.WriteHeader(http.StatusOK)
+
 }

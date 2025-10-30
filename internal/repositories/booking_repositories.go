@@ -93,3 +93,18 @@ func (br *BookingRepository) FindByPaymentID(ctx context.Context, paymentID stri
 
 	return &booking, nil
 }
+
+func (br *BookingRepository) UpdatePaymentID(ctx context.Context, bookingID primitive.ObjectID, paymentID string) error {
+	_, err := br.collection.UpdateOne(ctx, bson.M{"_id": bookingID}, bson.M{"$set": bson.M{"payment_id": paymentID}})
+
+	return err
+}
+
+func (br *BookingRepository) CreateIndexes(ctx context.Context) error {
+	indexModel := mongo.IndexModel{
+		Keys: bson.M{"payment_id": 1},
+	}
+	_, err := br.collection.Indexes().CreateOne(ctx, indexModel)
+
+	return err
+}

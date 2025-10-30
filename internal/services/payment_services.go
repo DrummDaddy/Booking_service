@@ -8,8 +8,8 @@ import (
 )
 
 type PaymentService struct {
-	APIURL string
-	APIKey string
+	APIURL string `json:"apiurl,omitempty"`
+	APIKey string `json:"api_key,omitempty"`
 }
 
 func NewPaymentService(apiUrl, apiKey string) *PaymentService {
@@ -56,7 +56,7 @@ func (ps *PaymentService) CreatePayment(ordeID string, amount float64, currency,
 
 	defer resp.Body.Close()
 	if resp.StatusCode != http.StatusOK && resp.StatusCode != http.StatusCreated {
-		return "", errors.New("Failed to create payment")
+		return "", errors.New(`failed to create payment`)
 	}
 
 	var response map[string]interface{}
@@ -66,7 +66,7 @@ func (ps *PaymentService) CreatePayment(ordeID string, amount float64, currency,
 
 	confirmation, ok := response["confirmation"].(map[string]interface{})
 	if !ok {
-		return "", errors.New("invalid resonse format")
+		return "", errors.New("invalid response format")
 	}
 
 	return confirmation["confirmation_url"].(string), nil
@@ -99,7 +99,7 @@ func (ps *PaymentService) GetPaymentStatus(paymentID string) (string, error) {
 
 	status, ok := response["status"].(string)
 	if !ok {
-		return "", errors.New("invalid responce format")
+		return "", errors.New("invalid response format")
 	}
 
 	return status, nil
